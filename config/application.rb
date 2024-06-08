@@ -39,6 +39,8 @@ module MainApp
     # Don't generate system test files.
     config.generators.system_tests = nil
 
+    config.generators.test_framework = :rspec
+
     config.active_job.queue_adapter :sidekiq
   end
 end
