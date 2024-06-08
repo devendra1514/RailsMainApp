@@ -1,12 +1,8 @@
 class TimezoneValidator < ActiveModel::EachValidator
+  include BaseValidator
+
   def validate_each(record, attribute, value)
-    unless value.present?
-      record.errors.add(attribute, 'must be present')
-      return
-    end
-    unless ActiveSupport::TimeZone[value]
-      record.errors.add(attribute, 'is not valid')
-      return
-    end
+    return add_error(record, attribute, 'must be present') unless present?(value)
+    return add_error(record, attribute, 'is not valid') unless ActiveSupport::TimeZone[value]
   end
 end

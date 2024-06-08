@@ -1,6 +1,10 @@
 module JsonWebTokenValidation
   extend ActiveSupport::Concern
 
+  included do
+    before_action :validate_token!
+  end
+
   def validate_token!
     token = request.headers[:token] || params[:token]
     decode_hash = JsonWebToken.decode(token)
@@ -20,6 +24,6 @@ module JsonWebTokenValidation
   end
 
   def current_user
-    @current_user
+    @current_usee
   end
 end
