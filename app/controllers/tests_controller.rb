@@ -17,11 +17,11 @@ class TestsController < ApplicationController
   )
 
   def create
-    # render_created_response(TestSerializer.new(AdminUser.first), message: "Created")
+    render_created_response(TestSerializer.new(AdminUser.first), message: "Created")
 
     # @pagy, @admin_users = pagy(AdminUser.where("email ILIKE ?", "%#{params[:email_search]}%"))
     # render_created_response(TestSerializer.new(@admin_users), message: "Success", pagination: @pagy)
 
-    render_unprocessable_response(["hello", "world"])
+    # render_bad_request_response(['can not proceed with this'])
   end
 end

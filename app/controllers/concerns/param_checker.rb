@@ -1,7 +1,6 @@
 module ParamChecker
   extend ActiveSupport::Concern
 
-  # This block runs when the module is included in a class
   included do
     before_action :check_required_params
   end
@@ -20,35 +19,41 @@ module ParamChecker
 
   private
 
-    def check_required_params
-      @error_messages = []
-      action = action_name.to_sym
-      required_params = self.class.required_params_for(action)
+  def check_required_params
+    @error_messages = []
+    action = action_name.to_sym
+    required_params = self.class.required_params_for(action)
 
-      required_params.flat_map do |param|
-        param_missing?(params, param, "") ? param : nil
-      end.compact
-
-      if @error_messages.any?
-        render json: { errors: @error_messages }, status: :bad_request
-      end
+    required_params.each do |param|
+      param_missing?(params, param, "")
     end
 
-    def param_missing?(params, key, chain)
-      if key.is_a?(Hash)
-        key.any? do |nested_key, nested_value|
-          params[nested_key].nil? || param_missing?(params[nested_key], nested_value, chain.empty? ? nested_key :
-            "#{chain}.#{nested_key}")
-        end
-      elsif key.is_a?(Array)
-        key.flat_map do |param|
-          param_missing?(params, param, chain) ? param : nil
-        end
-      else
-        if params[key].nil?
-          @error_messages << "#{key} must present inside #{chain}"
-          return true
+    if @error_messages.any?
+      render json: { errors: @error_messages }, status: :bad_request
+    end
+  end
+
+  def param_missing?(params, key, chain)
+    if key.is_a?(Hash)
+      key.each do |nested_key, nested_value|
+        if params[nested_key].nil?
+          @error_messages << "#{nested_key} must be present#{message(chain)}"
+        else
+          param_missing?(params[nested_key], nested_value, "#{chain}#{'.' unless chain.empty?}#{nested_key}")
         end
       end
+    elsif key.is_a?(Array)
+      key.each do |param|
+        param_missing?(params, param, chain)
+      end
+    else
+      if params[key].nil?
+        @error_messages << "#{key} must be present#{message(chain)}"
+      end
     end
+  end
+
+  def message(chain)
+    chain.present? ? " inside #{chain}" : ''
+  end
 end

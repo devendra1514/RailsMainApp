@@ -3,11 +3,6 @@ module RenderResponse
 
   def render_created_response(serialize_data, *advance_params)
     serialize_data = add_advance_params(serialize_data, advance_params)
-    render status: :created, json: serialize_data
-  end
-
-  def render_resource_response(serialize_data, *advance_params)
-    serialize_data = add_advance_params(serialize_data, advance_params)
     render_response(:created, serialize_data)
   end
 
@@ -23,6 +18,12 @@ module RenderResponse
     render_response(:unprocessable_entity, serialize_data)
   end
 
+  def render_bad_request_response(errors, *advance_params)
+    serialize_data = {}
+    serialize_data = serialize_data.merge(errors: errors)
+    serialize_data = add_advance_params(serialize_data, advance_params)
+    render_response(:bad_request, serialize_data)
+  end
 
   private
     def add_advance_params(serialize_data, advance_params)
